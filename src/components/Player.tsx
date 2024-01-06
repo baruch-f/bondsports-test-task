@@ -1,6 +1,6 @@
-import React from "react";
-import styled from "styled-components";
-import { IPlayer } from "../types/interface";
+import React from 'react';
+import styled from 'styled-components';
+import { IPlayer } from '../types/interface';
 
 const PlayerStyled = styled.div`
     padding: 0.5rem;
@@ -13,24 +13,23 @@ const PlayerStyled = styled.div`
 `;
 
 const PlayerButton = styled.button`
-  margin-left: auto;
-  order: 2;
+    margin-left: auto;
+    order: 2;
 `;
 
 interface IPlayerProps {
-    player: IPlayer,
-    icon?: string | React.ReactNode,
-    setFavorite: (p: IPlayer) => void
+    player: IPlayer;
+    icon?: string | React.ReactNode;
+    setFavorite: (p: IPlayer) => void;
 }
 
-
-const Player: React.FC<IPlayerProps> = ({player, setFavorite, icon}) => {
+const Player: React.FC<IPlayerProps> = ({ player, setFavorite, icon }) => {
     return (
         <PlayerStyled>
-        {player.first_name}
-        <PlayerButton onClick={() => setFavorite(player)}>{icon}</PlayerButton>
-    </PlayerStyled>
+            {player.first_name}
+            <PlayerButton onClick={() => setFavorite(player)}>{icon}</PlayerButton>
+        </PlayerStyled>
     );
-}
+};
 
 export default Player;

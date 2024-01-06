@@ -1,8 +1,13 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { IMeta, IPlayer, IValidationError } from '../types/interface';
 import Player from '../components/Player';
+import PlayerSearch from '../components/PlayerSearch';
+
+interface HomePageBodySection {
+    bg?: string;
+}
 
 const AlertMessage = styled.div`
     width: 100%;
@@ -27,7 +32,7 @@ const HomePageBodyHeader = styled.section`
     height: 10vh;
 `;
 
-const HomePageBodySection = styled.section<any>`
+const HomePageBodySection = styled.section<HomePageBodySection>`
     display: flex;
     justify-content: flex-start;
     flex-direction: column;
@@ -37,14 +42,14 @@ const HomePageBodySection = styled.section<any>`
     overflow-x: hidden;
     overflow-y: auto;
     position: relative;
-    background: ${props => props.bg || '#FFF'};
+    background: ${({bg}) => bg || '#FFF'};
 `;
 
 const SearchInput = styled.input`
     width: 30%;
     text-align: left;
     color: #000;
-    padding: .25rem;
+    padding: 0.25rem;
 `;
 
 const LogoImg = styled.img`
@@ -57,15 +62,15 @@ const LogoImg = styled.img`
 `;
 
 const LoadMore = styled.button`
-  border: 2px solid #48a1a1;
-  background: aqua;
-  border-radius: 10px;
-  padding: .25rem 1rem;
-  margin-top: 1rem;
-  cursor: pointer;
-  &:hover {
-    opacity: 0.6;
-  }
+    border: 2px solid #48a1a1;
+    background: aqua;
+    border-radius: 10px;
+    padding: 0.25rem 1rem;
+    margin-top: 1rem;
+    cursor: pointer;
+    &:hover {
+        opacity: 0.6;
+    }
 `;
 
 const CorlorPicker = styled.div`
@@ -82,13 +87,11 @@ const CorlorPicker = styled.div`
         border-radius: 50%;
         margin: 0.2rem;
         cursor: pointer;
-            &:hover {
+        &:hover {
             opacity: 0.6;
-            }
+        }
     }
 `;
-
-
 
 const HomePage: React.FC = () => {
     const [players, setPlayers] = useState<IPlayer[]>([]);
@@ -103,7 +106,7 @@ const HomePage: React.FC = () => {
         setLoading(true);
         await new Promise((res) => {
             setTimeout(res, 1000);
-        })
+        });
         try {
             const response = await axios.get(url);
             setPlayers([...players, ...response.data.data]);
@@ -116,11 +119,11 @@ const HomePage: React.FC = () => {
             }
         }
         setLoading(false);
-    }
+    };
 
     useEffect(() => {
         setPlayers([]);
-        ( async () => {
+        (async () => {
             await fetchData(url);
         })();
     }, []);
@@ -129,82 +132,58 @@ const HomePage: React.FC = () => {
 
     const loadNextPage = async () => {
         if (isNextPage) {
-            await fetchData(`${url}?page=${meta.next_page}`)
+            await fetchData(`${url}?page=${meta.next_page}`);
         }
-    }
+    };
 
     const setFavorite = (value: boolean) => (player: IPlayer) => {
         const playersCopy = [...players];
-        const index = playersCopy.findIndex(p => p.id === player.id);
+        const index = playersCopy.findIndex((p) => p.id === player.id);
         playersCopy[index].favorite = value;
         setPlayers(playersCopy);
-    }
+    };
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchText(e.target.value);
-    }
+    };
 
     if (error) {
-        return <AlertMessage>Error: {error}</AlertMessage>
+        return <AlertMessage>Error: {error}</AlertMessage>;
     }
 
     if (loading) {
-        return <AlertMessage>Loading...</AlertMessage>
+        return <AlertMessage>Loading...</AlertMessage>;
     }
 
-    const playersList = () => players
-        .filter(
-            p => searchText ? p.first_name.toLowerCase().includes(searchText.toLowerCase()) : true
-        );
-    const favoritesList = () => players
-        .filter(
-            p => p.favorite && (searchText ? p.first_name.toLowerCase().includes(searchText.toLowerCase()) : true)
-        );
+    const playersList = () => players.filter((p) => (searchText ? p.first_name.toLowerCase().includes(searchText.toLowerCase()) : true));
+    const favoritesList = () => players.filter((p) => p.favorite && (searchText ? p.first_name.toLowerCase().includes(searchText.toLowerCase()) : true));
 
     return (
         <>
             <HomePageBodyHeader>
-                <SearchInput
-                    autoFocus
-                    value={searchText}
-                    onChange={handleSearch}
-                    placeholder="Search player"
-                />
+                <PlayerSearch searchText={searchText} setSearchText={setSearchText} />
             </HomePageBodyHeader>
             <HomePageBody>
-                <LogoImg src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNI-rMSyvu6_WGZoTh99xpgxM3Ha8vwu_U5Q&usqp=CAU"/>
+                <LogoImg src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNI-rMSyvu6_WGZoTh99xpgxM3Ha8vwu_U5Q&usqp=CAU" />
                 <HomePageBodySection bg="transparent">
-                    {
-                        playersList().map(p =>
-                            <Player
-                                key={p.id}
-                                player={p}
-                                icon="+"
-                                setFavorite={setFavorite(true)}
-                            />)
-                    }
-                    {isNextPage && (
-                      <LoadMore onClick={loadNextPage}>Load More</LoadMore>
-                    )}
+                    {playersList().map((p) => (
+                        <Player key={p.id} player={p} icon="+" setFavorite={setFavorite(true)} />
+                    ))}
+                    {isNextPage && <LoadMore onClick={loadNextPage}>Load More</LoadMore>}
                 </HomePageBodySection>
                 <HomePageBodySection bg={bg}>
                     <CorlorPicker>
-                        <p onClick={() => setBg('lawngreen')} style={{background: 'lawngreen'}}></p>
-                        <p onClick={() => setBg('coral')} style={{background: 'coral'}}></p>
-                        <p onClick={() => setBg('cyan')} style={{background: 'cyan'}}></p>
+                        <p onClick={() => setBg('lawngreen')} style={{ background: 'lawngreen' }}></p>
+                        <p onClick={() => setBg('coral')} style={{ background: 'coral' }}></p>
+                        <p onClick={() => setBg('cyan')} style={{ background: 'cyan' }}></p>
                     </CorlorPicker>
-                    {
-                        favoritesList().map(p =>
-                            <Player
-                                key={p.id}
-                                player={p}
-                                icon="-"
-                                setFavorite={setFavorite(false)}
-                            />)}
+                    {favoritesList().map((p) => (
+                        <Player key={p.id} player={p} icon="-" setFavorite={setFavorite(false)} />
+                    ))}
                 </HomePageBodySection>
             </HomePageBody>
         </>
-    )
-}
+    );
+};
 
-export default HomePage
+export default HomePage;
